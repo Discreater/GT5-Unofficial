@@ -17,10 +17,12 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.StatCollector;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
 
@@ -1094,6 +1096,8 @@ public class Materials implements IColorModulationContainer, ISubTagContainer {
 
     private boolean hasCorrespondingFluid = false, hasCorrespondingGas = false, canBeCracked = false;
     private Fluid[] hydroCrackedFluids = new Fluid[3], steamCrackedFluids = new Fluid[3];
+    @Nullable
+    private String localizedChemicalFormulaKey = null;
 
     public Materials(int aMetaItemSubID, TextureSet aIconSet, float aToolSpeed, int aDurability, int aToolQuality,
         boolean aUnificatable, String aName, String aDefaultLocalName) {
@@ -1913,9 +1917,11 @@ public class Materials implements IColorModulationContainer, ISubTagContainer {
     }
 
     private static void overrideChemicalFormulars() {
-        Glue.mChemicalFormula = "No Horses were harmed for the Production";
-        AdvancedGlue.mChemicalFormula = "A chemically approved glue!";
-        UUAmplifier.mChemicalFormula = "Accelerates the Mass Fabricator";
+        Glue.setLocalizableChemicalFormula("GT5U.chemical_formula.glue", "No Horses were harmed for the Production");
+        AdvancedGlue
+            .setLocalizableChemicalFormula("GT5U.chemical_formula.advanced_glue", "A chemically approved glue!");
+        UUAmplifier
+            .setLocalizableChemicalFormula("GT5U.chemical_formula.uu_amplifier", "GT5U.chemical_formula.uu_amplifier");
         LiveRoot.mChemicalFormula = "";
         WoodSealed.mChemicalFormula = "";
         Wood.mChemicalFormula = "";
@@ -1947,7 +1953,7 @@ public class Materials implements IColorModulationContainer, ISubTagContainer {
         RedAlloy.mChemicalFormula = "Cu(" + Redstone.mChemicalFormula + ")\u2084";
         AnyIron.mChemicalFormula = "Fe";
         AnyCopper.mChemicalFormula = "Cu";
-        ElectrumFlux.mChemicalFormula = "The formula is too long...";
+        ElectrumFlux.setLocalizableChemicalFormula("GT5U.chemical_formula.too_long", "The formula is too long...");
         DeepIron.mChemicalFormula = "Sp\u2082Fe";
         Ichorium.mChemicalFormula = "IcMa";
         Infinity.mChemicalFormula = "If*";
@@ -1964,8 +1970,11 @@ public class Materials implements IColorModulationContainer, ISubTagContainer {
         Quartzite.mChemicalFormula = "SiO\u2082";
         CertusQuartz.mChemicalFormula = "SiO\u2082";
         CertusQuartzCharged.mChemicalFormula = "SiO\u2082";
-        MaterialsUEVplus.SpaceTime.mChemicalFormula = "Reality itself distilled into physical form";
-        MaterialsUEVplus.Universium.mChemicalFormula = "A tear into the space beyond space";
+        MaterialsUEVplus.SpaceTime.setLocalizableChemicalFormula(
+            "GT5U.chemical_formula.space_time",
+            "Reality itself distilled into physical form");
+        MaterialsUEVplus.Universium
+            .setLocalizableChemicalFormula("GT5U.chemical_formula.universium", "A tear into the space beyond space");
         MaterialsUEVplus.Eternity.mChemicalFormula = "En\u29BC";
         MaterialsUEVplus.MagMatter.mChemicalFormula = "M\u238B";
         Longasssuperconductornameforuvwire.mChemicalFormula = "Nq*\u2084(Ir\u2083Os)\u2083EuSm";
@@ -1987,8 +1996,10 @@ public class Materials implements IColorModulationContainer, ISubTagContainer {
         TengamRaw.mChemicalFormula = "";
         TengamPurified.mChemicalFormula = "M";
         TengamAttuned.mChemicalFormula = "M";
-        MaterialsUEVplus.ExcitedDTSC.mChemicalFormula = "[-Stellar-Stellar-]";
-        MaterialsUEVplus.DimensionallyTranscendentStellarCatalyst.mChemicalFormula = "Stellar";
+        MaterialsUEVplus.ExcitedDTSC
+            .setLocalizableChemicalFormula("GT5U.chemical_formula.excited_dtsc", "[-Stellar-Stellar-]");
+        MaterialsUEVplus.DimensionallyTranscendentStellarCatalyst
+            .setLocalizableChemicalFormula("GT5U.chemical_formula.dtsc", "Stellar");
         PolyAluminiumChloride.mChemicalFormula = "Al\u2082(OH)\u2083Cl\u2083";
         MaterialsUEVplus.QuarkGluonPlasma.mChemicalFormula = EnumChatFormatting.OBFUSCATED + "X"
             + EnumChatFormatting.RESET
@@ -3201,6 +3212,22 @@ public class Materials implements IColorModulationContainer, ISubTagContainer {
     public Materials setSteamCrackedFluids(Fluid[] steamCrackedFluids) {
         this.steamCrackedFluids = steamCrackedFluids;
         return this;
+    }
+
+    /**
+     * The key will be used in the display of fluids.
+     * Hope one day we can remove the English formula here.
+     */
+    public void setLocalizableChemicalFormula(String key, String defaultName) {
+        mChemicalFormula = defaultName;
+        localizedChemicalFormulaKey = key;
+    }
+
+    public String getLocalizedChemicalFormula() {
+        if (this.localizedChemicalFormulaKey != null && !this.localizedChemicalFormulaKey.isEmpty()) {
+            return StatCollector.translateToLocal(this.localizedChemicalFormulaKey);
+        }
+        return mChemicalFormula;
     }
 
     public FluidStack getLightlySteamCracked(int amount) {

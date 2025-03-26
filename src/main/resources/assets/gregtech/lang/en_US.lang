@@ -2102,6 +2102,15 @@ GT5U.tooltip.tool.heat=Heat: %d K
 GT5U.tooltip.volumetric_flask.empty=Empty
 GT5U.tooltip.volumetric_flask.set_volume=Rightclick on air to set volume (only while empty)
 
+GT5U.chemical_formula.too_long=The formula is too long...
+GT5U.chemical_formula.glue=No Horses were harmed for the Production
+GT5U.chemical_formula.advanced_glue=A chemically approved glue!
+GT5U.chemical_formula.uu_amplifier=Accelerates the Mass Fabricator
+GT5U.chemical_formula.space_time=Reality itself distilled into physical form
+GT5U.chemical_formula.universium=A tear into the space beyond space
+GT5U.chemical_formula.excited_dtsc=[-Stellar-Stellar-]
+GT5U.chemical_formula.dtsc=Stellar
+
 # Achievements
 
 # 4/2/19

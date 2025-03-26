@@ -135,7 +135,7 @@ public class ItemFluidDisplay extends GTGenericItem {
                                     return StatCollector.translateToLocal(werkstoffKey);
                                 }
                             }
-                            return tMaterial.mChemicalFormula;
+                            return tMaterial.getLocalizedChemicalFormula();
                         }
                     } else {
                         // For GT++ Fluid Display
