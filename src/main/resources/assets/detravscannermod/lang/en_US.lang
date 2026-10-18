@@ -19,6 +19,8 @@ detrav.scanner.found.texts.3= §2medium sample§r.
 detrav.scanner.found.texts.4= §elarge sample§r.
 detrav.scanner.found.texts.5= §dvery large sample§r.
 detrav.scanner.found.texts.6=Found %s
+detrav.scanner.found.name.fluid=a Fluid
+
 
 # Don't translate "%badluck"
 detrav.scanner.success=All chunks scanned successfully!

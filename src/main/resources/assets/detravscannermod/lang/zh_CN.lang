@@ -19,6 +19,7 @@ detrav.scanner.found.texts.3= §2中等(30-59)§r.
 detrav.scanner.found.texts.4= §e较多(60-99)§r.
 detrav.scanner.found.texts.5= §d极多(100+)§r.
 detrav.scanner.found.texts.6=发现%s
+detrav.scanner.found.name.fluid=流体
 
 # Don't translate "%badluck"
 detrav.scanner.success=全部区块勘探成功!

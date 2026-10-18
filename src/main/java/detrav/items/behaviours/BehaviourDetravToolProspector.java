@@ -15,7 +15,9 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.IChatComponent;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
@@ -42,7 +44,6 @@ import gregtech.common.pollution.Pollution;
 public class BehaviourDetravToolProspector extends BehaviourNone {
 
     static final int[] DISTANCEINTS = new int[] { 0, 4, 25, 64 };
-    int distTextIndex;
 
     HashMap<String, Integer> ores;
     int badluck;
@@ -70,7 +71,10 @@ public class BehaviourDetravToolProspector extends BehaviourNone {
         if (block == Blocks.bedrock) {
             if (!aWorld.isRemote && aRandom.nextInt(100) < chance) {
                 FluidStack fStack = UndergroundOil.undergroundOil(aWorld.getChunkFromBlockCoords(aX, aZ), -1);
-                addChatMassageByValue(aPlayer, fStack.amount / 2, "a Fluid");
+                addChatMassageByValue(
+                    aPlayer,
+                    fStack.amount / 2,
+                    new ChatComponentTranslation("detrav.scanner.found.name.fluid"));
 
                 if (!aPlayer.capabilities.isCreativeMode)
                     ((DetravMetaGeneratedTool01) aItem).doDamage(aStack, this.mCosts);
@@ -123,6 +127,7 @@ public class BehaviourDetravToolProspector extends BehaviourNone {
                 aZ = bZ + z * 16;
                 int dist = x * x + z * z;
 
+                int distTextIndex;
                 for (distTextIndex = 0; distTextIndex < DISTANCEINTS.length; distTextIndex++) {
                     if (dist <= DISTANCEINTS[distTextIndex]) {
                         break;
@@ -152,7 +157,8 @@ public class BehaviourDetravToolProspector extends BehaviourNone {
                     aY,
                     aZ,
                     aRandom,
-                    chance);
+                    chance,
+                    distTextIndex);
             }
         }
 
@@ -237,11 +243,13 @@ public class BehaviourDetravToolProspector extends BehaviourNone {
             aY,
             aZ,
             new SplittableRandom(),
-            1000);
+            1000,
+            0);
 
         for (String key : ores.keySet()) {
             int value = ores.get(key);
-            addChatMassageByValue(aPlayer, value, key);
+            // FIXME: localize it
+            addChatMassageByValue(aPlayer, value, new ChatComponentText(key));
         }
 
         if (VisualProspecting.isModLoaded()) {
@@ -257,7 +265,7 @@ public class BehaviourDetravToolProspector extends BehaviourNone {
     }
 
     protected void processOreProspecting(DetravMetaGeneratedTool01 aItem, ItemStack aStack, EntityPlayer aPlayer,
-        World world, int x, int y, int z, SplittableRandom aRandom, int chance) {
+        World world, int x, int y, int z, SplittableRandom aRandom, int chance, int distTextIndex) {
         Chunk chunk = world.getChunkFromBlockCoords(x, z);
 
         Block block = world.getBlock(x, y, z);
@@ -266,7 +274,7 @@ public class BehaviourDetravToolProspector extends BehaviourNone {
         ItemStack blockStack = new ItemStack(block, 1, meta);
 
         if (GTUtility.isOre(block, meta)) {
-            addOreToHashMap(blockStack.getDisplayName(), aPlayer);
+            addOreToHashMap(blockStack.getDisplayName(), aPlayer, distTextIndex);
             if (!aPlayer.capabilities.isCreativeMode) aItem.doDamage(aStack, this.mCosts);
             return;
         }
@@ -276,10 +284,10 @@ public class BehaviourDetravToolProspector extends BehaviourNone {
         if (itemData != null) {
             try {
                 String name = itemData.toString();
-                addChatMassageByValue(aPlayer, -1, name);
+                addChatMassageByValue(aPlayer, -1, new ChatComponentText(name));
                 if (!aPlayer.capabilities.isCreativeMode) aItem.doDamage(aStack, this.mCosts);
             } catch (Exception e) {
-                addChatMassageByValue(aPlayer, -1, "ERROR, lol ^_^");
+                addChatMassageByValue(aPlayer, -1, new ChatComponentText("ERROR, lol ^_^"));
             }
 
             return;
@@ -303,7 +311,7 @@ public class BehaviourDetravToolProspector extends BehaviourNone {
                                 if (data != DetravMetaGeneratedTool01.MODE_ALL_ORES && info.isSmall) continue;
 
                                 ItemStack oreStack = new ItemStack(tBlock, 1, tMetaID);
-                                addOreToHashMap(oreStack.getDisplayName(), aPlayer);
+                                addOreToHashMap(oreStack.getDisplayName(), aPlayer, distTextIndex);
                                 continue;
                             }
                         }
@@ -314,7 +322,7 @@ public class BehaviourDetravToolProspector extends BehaviourNone {
                             itemData = GTOreDictUnificator.getAssociation(oreStack);
                             if (itemData != null && itemData.mPrefix.toString()
                                 .startsWith("ore")) {
-                                addOreToHashMap(oreStack.getDisplayName(), aPlayer);
+                                addOreToHashMap(oreStack.getDisplayName(), aPlayer, distTextIndex);
                             }
                         }
                     }
@@ -332,7 +340,7 @@ public class BehaviourDetravToolProspector extends BehaviourNone {
         if (!aPlayer.capabilities.isCreativeMode) aItem.doDamage(aStack, this.mCosts / 4);
     }
 
-    void addOreToHashMap(String orename, EntityPlayer aPlayer) {
+    void addOreToHashMap(String orename, EntityPlayer aPlayer, int distTextIndex) {
         // orename + the textual distance of the ore
         String oreDistance = orename + StatCollector.translateToLocal("detrav.scanner.distance.texts." + distTextIndex);
         if (!ores.containsKey(oreDistance)) {
@@ -345,23 +353,20 @@ public class BehaviourDetravToolProspector extends BehaviourNone {
         }
     }
 
-    void addChatMassageByValue(EntityPlayer aPlayer, int value, String name) {
+    void addChatMassageByValue(EntityPlayer aPlayer, int value, IChatComponent name) {
         if (value < 0) {
-            aPlayer.addChatMessage(
-                new ChatComponentText(StatCollector.translateToLocalFormatted("detrav.scanner.found.texts.6", name)));
+            aPlayer.addChatMessage(new ChatComponentTranslation("detrav.scanner.found.texts.6", name));
         } else if (value < 1) {
-            aPlayer
-                .addChatMessage(new ChatComponentText(StatCollector.translateToLocal("detrav.scanner.found.texts.0")));
-        } else if (value < 10) aPlayer.addChatMessage(
-            new ChatComponentText(name + StatCollector.translateToLocal("detrav.scanner.found.texts.1")));
-        else if (value < 30) aPlayer.addChatMessage(
-            new ChatComponentText(name + StatCollector.translateToLocal("detrav.scanner.found.texts.2")));
-        else if (value < 60) aPlayer.addChatMessage(
-            new ChatComponentText(name + StatCollector.translateToLocal("detrav.scanner.found.texts.3")));
-        else if (value < 100) aPlayer.addChatMessage(
-            new ChatComponentText(name + StatCollector.translateToLocal("detrav.scanner.found.texts.4")));
-        else aPlayer.addChatMessage(
-            new ChatComponentText(name + StatCollector.translateToLocal("detrav.scanner.found.texts.5")));
+            aPlayer.addChatMessage(new ChatComponentTranslation("detrav.scanner.found.texts.0"));
+        } else if (value < 10)
+            aPlayer.addChatMessage(name.appendSibling(new ChatComponentTranslation("detrav.scanner.found.texts.1")));
+        else if (value < 30)
+            aPlayer.addChatMessage(name.appendSibling(new ChatComponentTranslation("detrav.scanner.found.texts.2")));
+        else if (value < 60)
+            aPlayer.addChatMessage(name.appendSibling(new ChatComponentTranslation("detrav.scanner.found.texts.3")));
+        else if (value < 100)
+            aPlayer.addChatMessage(name.appendSibling(new ChatComponentTranslation("detrav.scanner.found.texts.4")));
+        else aPlayer.addChatMessage(name.appendSibling(new ChatComponentTranslation("detrav.scanner.found.texts.5")));
     }
 
     // Same as addChatMassageByValue but appends to a list of chat messages and spelled correctly
