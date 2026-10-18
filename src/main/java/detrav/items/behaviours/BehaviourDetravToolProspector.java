@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.SplittableRandom;
 
+import com.gtnewhorizon.gtnhlib.chat.customcomponents.ChatComponentItemName;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.player.EntityPlayer;
@@ -167,7 +168,7 @@ public class BehaviourDetravToolProspector extends BehaviourNone {
 
         for (String key : ores.keySet()) {
             int value = ores.get(key);
-            appendChatMessageByValue(oreMessages, aPlayer, value, key);
+            appendChatMessageByValue(oreMessages, value, key);
         }
 
         // Define sort order by distance
@@ -283,11 +284,11 @@ public class BehaviourDetravToolProspector extends BehaviourNone {
 
         if (itemData != null) {
             try {
-                String name = itemData.toString();
-                addChatMassageByValue(aPlayer, -1, new ChatComponentText(name));
+                // Why display `ItemData.toString()` here?
+                aPlayer.addChatMessage(new ChatComponentTranslation("detrav.scanner.found.texts.with_id", new ChatComponentItemName(blockStack), itemData.toString()));
                 if (!aPlayer.capabilities.isCreativeMode) aItem.doDamage(aStack, this.mCosts);
             } catch (Exception e) {
-                addChatMassageByValue(aPlayer, -1, new ChatComponentText("ERROR, lol ^_^"));
+                aPlayer.addChatMessage(new ChatComponentTranslation("detrav.scanner.found.texts.error"));
             }
 
             return;
@@ -370,7 +371,7 @@ public class BehaviourDetravToolProspector extends BehaviourNone {
     }
 
     // Same as addChatMassageByValue but appends to a list of chat messages and spelled correctly
-    void appendChatMessageByValue(List<ChatComponentText> chatMessageList, EntityPlayer aPlayer, int value,
+    void appendChatMessageByValue(List<ChatComponentText> chatMessageList, int value,
         String name) {
         if (value < 0) {
             chatMessageList.add(
