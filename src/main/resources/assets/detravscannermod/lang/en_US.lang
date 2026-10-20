@@ -23,11 +23,10 @@ detrav.scanner.found.texts.with_id=Found %s, data string: %s.
 detrav.scanner.found.texts.error=Found ERROR, lol ^_^
 detrav.scanner.found.name.fluid=a Fluid
 
-# Don't translate "%badluck"
 detrav.scanner.success=All chunks scanned successfully!
-detrav.scanner.fail=Failed on %badluck chunks. Better luck next time!
+detrav.scanner.fail.s=Failed on %s chunks. Better luck next time!
 
-detrav.scanner.prospecting=Prospecting at
+detrav.scanner.prospecting.at=§6Prospecting at§9 (%s, %s)
 
 tooltip.detrav.scanner.durability=Durability: %s / %s
 tooltip.detrav.scanner.range=Chunks: %s x %s
@@ -61,3 +60,5 @@ gt.detrav.metatool.01.electric.name=Electric Prospector's Scanner (%s)
 # Chats
 detrav.scanner.chat.cancel=Cancelled pending scan
 detrav.scanner.chat.scanning=Scanning...
+detrav.scanner.chat.debug.adding=§a Adding to oremap %s
+detrav.scanner.chat.debug.chunk_at=§eChunk at %s|%s to %s|%s%s
